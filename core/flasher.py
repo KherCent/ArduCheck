@@ -97,10 +97,10 @@ def upload_sketch(port: str, board_type: str = "uno") -> Tuple[bool, str]:
         return False, _get_arduino_cli_install_hint()
     fqbn = FQBN_BY_TYPE.get(board_type, "arduino:avr:uno")
     cmd = [
-        cli, "upload",
+        cli, "compile",
+        "--upload",
         "--fqbn", fqbn,
         "--port", port,
-        "--verify",                  # verifica después de subir
         str(SKETCH_PATH),
     ]
     try:

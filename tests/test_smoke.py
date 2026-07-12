@@ -9,8 +9,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.parser import DiagnosticParser
-from core.detector import ArduinoDetector
+from core.detector import ArduinoDetector, DetectedBoard
 from core.runner import ArduinoDiagnostic
+from core.board_heuristic import identify, ARCH_AVR, ARCH_UNKNOWN
 
 
 def test_parser_basic():
@@ -96,6 +97,49 @@ def test_detector_no_crash():
     print(f"[OK] test_detector_no_crash  found={len(boards)} ports")
 
 
+def test_detector_empty_description():
+    """Test para detectar clones genéricos sin descriptores USB (CH340 ultra-económicos)."""
+    # Simulamos un objeto ListPortInfo con todos los campos vacíos
+    class FakePortInfo:
+        device = "COM99"
+        hwid = ""
+        description = ""
+        manufacturer = ""
+        product = ""
+        serial_number = None
+        location = None
+        interface = None
+
+    board = ArduinoDetector._identify_board(FakePortInfo())
+    assert board.port == "COM99"
+    assert "genérico" in board.guessed_name.lower() or board.guessed_type == "avr"
+    # Debe tener el flag de inspección manual
+    assert board.extra.get("needs_manual_inspection", False) is True
+    assert board.extra.get("port_path") == "COM99"
+    print(f"[OK] test_detector_empty_description  name='{board.guessed_name}'")
+
+
+def test_board_heuristic_linux_tty():
+    """Test de regex fallback para dispositivos Linux/macOS sin descripción."""
+    # Linux: /dev/ttyUSB0, /dev/ttyACM0
+    h_linux = identify("/dev/ttyUSB0")
+    assert h_linux is not None
+    assert h_linux.arch in (ARCH_AVR, ARCH_UNKNOWN)
+    print(f"[OK] test_board_heuristic_linux_tty  arch={h_linux.arch}")
+
+    h_acm = identify("/dev/ttyACM1")
+    assert h_acm is not None
+    print(f"[OK] test_board_heuristic_linux_tty (ACM)  name='{h_linux.name}'")
+
+
+def test_board_heuristic_macos():
+    """Test de regex fallback para macOS."""
+    h = identify("cu.usbmodem123456")
+    assert h is not None
+    assert h.arch == ARCH_AVR
+    print(f"[OK] test_board_heuristic_macos  name='{h.name}'")
+
+
 if __name__ == "__main__":
     print("=== ArduCheck - Tests de humo ===\n")
     test_parser_basic()
@@ -103,4 +147,7 @@ if __name__ == "__main__":
     test_runner_good_path()
     test_runner_fail_path()
     test_detector_no_crash()
+    test_detector_empty_description()
+    test_board_heuristic_linux_tty()
+    test_board_heuristic_macos()
     print("\n[PASS] Todos los tests pasaron.")

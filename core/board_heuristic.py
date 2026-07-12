@@ -274,6 +274,15 @@ BOARD_PATTERNS: list = [
         "USB Serial genérico", "desconocido", ARCH_UNKNOWN, 0, 0, 115200)),
     (re.compile(r"usb device", re.I), BoardHeuristic(
         "USB genérico", "desconocido", ARCH_UNKNOWN, 0, 0, 115200)),
+
+    # ============ LINUX/macOS SIN DESCRIPCION ============
+    # Clones genéricos que en Linux/macOS aparecen solo con el nombre del dispositivo
+    (re.compile(r"^tty(?:acm|usb|modem)\d*$", re.I), BoardHeuristic(
+        "Puerto serie genérico (clon sin descriptores USB)", "desconocido", ARCH_AVR, 0, 0, 115200)),
+    (re.compile(r"^cu\.usbmodem|^cu\.tty\.", re.I), BoardHeuristic(
+        "Puerto serie genérico (macOS)", "desconocido", ARCH_AVR, 0, 0, 115200)),
+    (re.compile(r"^/dev/tty", re.I), BoardHeuristic(
+        "Dispositivo TTY genérico", "desconocido", ARCH_UNKNOWN, 0, 0, 115200)),
 ]
 
 

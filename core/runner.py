@@ -4,6 +4,9 @@ core/runner.py
 Coordinador del diagnóstico completo.
 Abre el puerto, ejecuta el sketch de auto-test, parsea resultados
 y emite un veredicto.
+
+Multiplataforma: usa platform_utils para encontrar avrdude
+y maneja excepciones del puerto serial de forma robusta.
 """
 
 from __future__ import annotations
@@ -13,7 +16,8 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .parser import DiagnosticParser, DiagnosticReport
-from .board_info import _find_avrdude, _avrdude_conf, KNOWN_SIGNATURES
+from .platform_utils import get_avrdude_path, is_unix, require_dialout_membership
+from .board_info import _avrdude_conf, KNOWN_SIGNATURES
 
 
 # Umbrales
@@ -64,9 +68,11 @@ class ArduinoDiagnostic:
         """Abre el puerto, lee la salida del sketch y devuelve el veredicto."""
         self._bootloader_check_done = False
         self._bootloader_error = ""
+        self._disconnect_error = ""
         
         # 0) Verificar bootloader ANTES de tests por Serial
-        avrdude = _find_avrdude()
+        # Usa get_avrdude_path() multiplataforma de platform_utils
+        avrdude = get_avrdude_path()
         if avrdude:
             conf = _avrdude_conf()
             import subprocess
@@ -89,7 +95,7 @@ class ArduinoDiagnostic:
                                         chip, arch, fl, ram, eep = KNOWN_SIGNATURES[sig]
                                         self.parser.report.chip = chip
                                         break
-                                except:
+                                except Exception:
                                     pass
                         self._bootloader_check_done = True
                         break
@@ -103,6 +109,7 @@ class ArduinoDiagnostic:
                 except Exception:
                     break
         
+        # 1) Abrir puerto y leer datos del sketch
         try:
             with serial.Serial(self.port, self.baud, timeout=2) as ser:
                 # Reset por DTR (algunos clones CH340 lo ignoran)
@@ -117,18 +124,58 @@ class ArduinoDiagnostic:
 
                 start = time.time()
                 while time.time() - start < self.timeout:
-                    line = ser.readline().decode("utf-8", errors="ignore")
+                    # Capturar desconexiones abruptas durante la lectura
+                    try:
+                        line = ser.readline().decode("utf-8", errors="ignore")
+                    except (OSError, serial.SerialException, AttributeError) as e:
+                        # La placa se desconectó durante el test
+                        self._disconnect_error = (
+                            f"La placa se desconectó durante el diagnóstico: {e}"
+                        )
+                        break
                     if not line:
                         continue
                     self.parser.feed(line)
                     if self.parser.report.done:
                         break
         except serial.SerialException as e:
+            err_str = str(e).lower()
+            # Mejorar mensaje para errores de permisos en Unix
+            if "permission" in err_str or "acceso denegado" in err_str:
+                if is_unix():
+                    dialout_ok, dialout_hint = require_dialout_membership()
+                    if not dialout_ok:
+                        return DiagnosticResult(
+                            port=self.port, board="?", chip="?",
+                            verdict="FAIL", score=0,
+                            summary=f"Sin permisos para abrir {self.port}.\n{dialout_hint}",
+                            errors=[f"Permission denied en {self.port}", dialout_hint],
+                        )
             return DiagnosticResult(
                 port=self.port, board="?", chip="?",
                 verdict="FAIL", score=0,
                 summary=f"No se pudo abrir {self.port}: {e}",
                 errors=[str(e)],
+            )
+        except OSError as e:
+            return DiagnosticResult(
+                port=self.port, board="?", chip="?",
+                verdict="FAIL", score=0,
+                summary=f"Error del sistema al abrir {self.port}: {e}",
+                errors=[str(e)],
+            )
+
+        # 2) Si hubo desconexión durante el test
+        if self._disconnect_error:
+            return DiagnosticResult(
+                port=self.port,
+                board=self.parser.report.board or "?",
+                chip=self.parser.report.chip or "?",
+                verdict="FAIL",
+                score=0,
+                summary=self._disconnect_error,
+                errors=[self._disconnect_error],
+                report=self.parser.report,
             )
 
         return self._build_verdict()

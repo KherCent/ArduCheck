@@ -1,11 +1,13 @@
 """
 gui/app.py - Interfaz grafica Tkinter para diagnostico Arduino
 Incluye deteccion automatica de hot-plug USB.
+Multiplataforma: maneja desconexiones abruptas y permisos de puerto serie.
 """
 
 from __future__ import annotations
 import threading
 import queue
+import time
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import sys
@@ -17,6 +19,7 @@ from core import (
     ArduinoDetector, ArduinoDiagnostic,
     HotplugWatcher, get_default_watcher,
     upload_sketch, is_flasher_available,
+    is_unix, require_dialout_membership,
 )
 
 
@@ -187,13 +190,26 @@ class DiagnosticGUI:
                 board_type = b.guessed_type or "uno"
                 break
         if not is_flasher_available():
-            messagebox.showwarning(
-                "arduino-cli no instalado",
-                "Para subir el sketch automaticamente instala arduino-cli:\n"
-                "  winget install ArduinoSA.CLI\n"
-                "  arduino-cli core install arduino:avr\n\n"
-                "Continuare con el diagnostico sin subir sketch."
-            )
+            if is_unix():
+                install_hint = (
+                    "arduino-cli no encontrado. Instálalo con:\n\n"
+                    "  # Linux/macOS:\n"
+                    "  curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh\n"
+                    "  # macOS (Homebrew):\n"
+                    "  brew install arduino-cli/arduino-cli/arduino-cli\n\n"
+                    "Luego ejecuta:\n"
+                    "  arduino-cli core install arduino:avr\n\n"
+                    "Continuaré con el diagnóstico sin subir sketch."
+                )
+            else:
+                install_hint = (
+                    "arduino-cli no encontrado. Instálalo con:\n"
+                    "  winget install ArduinoSA.CLI\n"
+                    "Luego ejecuta:\n"
+                    "  arduino-cli core install arduino:avr\n\n"
+                    "Continuaré con el diagnóstico sin subir sketch."
+                )
+            messagebox.showwarning("arduino-cli no instalado", install_hint)
         else:
             self.set_status(f"Subiendo sketch a {port}...")
             self._reset_result_panel()
@@ -268,8 +284,10 @@ class DiagnosticGUI:
         self.score_var.set(f"score {res.score}/100")
         self.board_var.set(res.board)
         self.chip_var.set(res.chip)
-        self.vcc_var.set(f"{res.report.vcc_mv/100:.2f} V"
-                         if res.report and res.report.vcc_mv else "-")
+        self.vcc_var.set(
+            f"{res.report.vcc_mv/100:.2f} V"
+            if res.report and res.report.vcc_mv else "-"
+        )
         self.log_line("")
         self.log_line("=" * 60)
         self.log_line(res.summary)
@@ -286,6 +304,16 @@ class DiagnosticGUI:
             self.log_line("[FAIL] Errores:")
             for e in res.errors:
                 self.log_line(f"   - {e}")
+        # Detectar desconexión durante el test (report=None con errores)
+        if res.report is None and res.verdict == "FAIL":
+            self.log_line("")
+            self.log_line("[INFO] La placa puede haberse desconectado durante el test.")
+            self.log_line("      Verifica el cable USB y vuelve a intentarlo.")
+            dialout_ok, hint = require_dialout_membership()
+            if is_unix() and not dialout_ok:
+                self.log_line("")
+                self.log_line("[WARN] Posible problema de permisos:")
+                self.log_line(f"      {hint}")
         self.set_status(f"Diagnostico finalizado: {res.verdict}")
 
     def _on_close(self):

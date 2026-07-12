@@ -117,6 +117,15 @@ class ArduinoDetector:
         manufacturer = getattr(info, "manufacturer", None) or ""
         product = getattr(info, "product", None) or ""
 
+        # 0) Caso especial: puertos sin descriptores USB (clones genéricos ultra-económicos)
+        # Ejemplo: algunos convertidores CH340 de ultra-bajo costo
+        no_usb_info = (
+            vid is None and pid is None
+            and not description
+            and not manufacturer
+            and not product
+        )
+
         # 1) Buscar en base de datos VID/PID
         usb_profile: Optional[USBProfile] = None
         if vid is not None and pid is not None:
@@ -127,11 +136,20 @@ class ArduinoDetector:
         guessed_name = "Desconocida"
         guessed_type = "unknown"
         is_arduino_like = False
+        extra: dict = {}
 
         if usb_profile:
             guessed_name = usb_profile.name
             guessed_type = usb_profile.arch
             is_arduino_like = usb_profile.is_arduino_brand
+        elif no_usb_info:
+            # Clon genérico sin descriptores USB
+            # Marcarlo para inspección manual y asumir AVR por defecto
+            guessed_name = "Posible clon genérico (sin descriptores USB)"
+            guessed_type = "avr"
+            is_arduino_like = False
+            extra["needs_manual_inspection"] = True
+            extra["port_path"] = info.device
         else:
             # Intentar heuristica
             combined = " ".join([description, manufacturer, product])
@@ -179,6 +197,7 @@ class ArduinoDetector:
             is_arduino_like=is_arduino_like,
             usb_profile=usb_profile,
             heuristic=heuristic,
+            extra=extra,
         )
 
     @classmethod

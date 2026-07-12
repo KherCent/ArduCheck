@@ -24,6 +24,7 @@ SKETCH_PATH = Path(__file__).resolve().parent.parent / "firmware" / "diagnostic_
 FQBN_BY_TYPE = {
     "uno":            "arduino:avr:uno",
     "nano":           "arduino:avr:nano",
+    "nano_old":       "arduino:avr:nano:cpu=atmega328old",
     "mega":           "arduino:avr:mega",
     "mega2560":       "arduino:avr:mega",
     "mega_old":       "arduino:avr:mega",       # 1280 -> mismo fqbn

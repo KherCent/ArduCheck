@@ -90,6 +90,9 @@ def cmd_diagnose(args):
             if b.port == port:
                 board_type = b.guessed_type or "uno"
                 break
+        # Si el usuario especifica la placa manualmente, anula la autodetección
+        if getattr(args, "board", None):
+            board_type = args.board
         ok, msg = upload_sketch(port, board_type)
         if not ok:
             print(f"[FAIL] Error al subir el sketch: {msg}")
@@ -203,6 +206,7 @@ def main():
     p_diag.add_argument("--baud", type=int, default=115200)
     p_diag.add_argument("--timeout", type=float, default=60.0)
     p_diag.add_argument("--upload", action="store_true", help="Subir el sketch de diagnostico antes de iniciar el test")
+    p_diag.add_argument("--board", help="Tipo de placa (uno, nano, nano_old, mega, etc.)")
 
     p_repair = sub.add_parser("repair", help="Reparar bootloader de una placa")
     p_repair.add_argument("--port", help="Puerto (p.ej. COM3, /dev/ttyUSB0)")

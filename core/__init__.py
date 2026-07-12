@@ -6,7 +6,7 @@ from .detector import ArduinoDetector, DetectedBoard
 from .board_info import BoardInfo
 from .runner import ArduinoDiagnostic, DiagnosticResult
 from .repair import ArduinoRepair, RepairResult, repair_port
-from .watcher import get_default_watcher
+from .watcher import get_default_watcher, HotplugWatcher
 from .flasher import upload_sketch, is_flasher_available
 from .platform_utils import (
     find_tool,
@@ -33,6 +33,7 @@ __all__ = [
     "RepairResult",
     "repair_port",
     "get_default_watcher",
+    "HotplugWatcher",
     "upload_sketch",
     "is_flasher_available",
     # platform_utils

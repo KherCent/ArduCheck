@@ -15,6 +15,11 @@ dist/
 .coverage
 htmlcov/
 
+# Reportes de demo/exportados (nunca subirlos)
+demo_report.*
+diagnostic_results/
+reports/
+
 # Arduino / C++
 *.hex
 *.elf

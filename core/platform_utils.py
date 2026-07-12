@@ -81,6 +81,7 @@ def find_tool(name: str, extra_paths: Optional[list] = None) -> Optional[str]:
                 os.path.expanduser("~\\AppData\\Local\\Arduino15\\packages\\arduino\\tools"),
                 "C:\\Program Files\\Arduino\\tools",
                 "C:\\Program Files (x86)\\Arduino\\tools",
+                "C:\\Program Files\\Arduino CLI",
             ]
 
     for base in extra_paths:

@@ -18,7 +18,7 @@ from typing import Optional, Tuple
 from .platform_utils import find_tool, is_windows
 
 
-SKETCH_PATH = Path(__file__).resolve().parent.parent / "firmware" / "diagnostic_sketch.ino"
+SKETCH_PATH = Path(__file__).resolve().parent.parent / "firmware" / "diagnostic_sketch" / "diagnostic_sketch.ino"
 
 # FQBN (Fully Qualified Board Name) por tipo de placa
 FQBN_BY_TYPE = {

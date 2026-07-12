@@ -174,17 +174,18 @@ void test_eeprom() {
 }
 
 // ---------- TEST 8: memoria ----------
-int freeRam() {
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
-}
-
 void test_memory() {
   int ram_free = freeRam();
   emit(F("$RAM"), ram_free);
   // Flash size es aproximado al definido en board.txt
   emit(F("$FLASH"), FLASH_SIZE, FLASH_SIZE);
+}
+
+// ---------- TEST 8.5: Free RAM helper ----------
+int freeRam() {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
 
 // ---------- TEST 9: I2C ----------

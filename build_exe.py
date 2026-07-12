@@ -1,50 +1,36 @@
 """
 build_exe.py — Genera un ejecutable standalone con PyInstaller
-
-Uso:
-    pip install pyinstaller
-    python build_exe.py
-
-Resultado: dist/ArduCheck.exe
 """
 
 import PyInstaller.__main__
 import os
 import shutil
 
-# Limpiar builds anteriores
-if os.path.exists("build"):
-    shutil.rmtree("build")
-if os.path.exists("dist"):
-    shutil.rmtree("dist")
+# Ir al directorio del proyecto
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-print("=" * 60)
-print("ArduCheck - Generando ejecutable...")
-print("=" * 60)
+# Limpiar
+for f in ["build", "dist", "ArduCheck.spec"]:
+    if os.path.exists(f):
+        if os.path.isdir(f):
+            shutil.rmtree(f)
+        else:
+            os.remove(f)
+
+print("Generando ArduCheck.exe...")
 
 PyInstaller.__main__.run([
-    "gui/app_v2.py",
     "--name=ArduCheck",
-    "--onefile",              # Un solo archivo .exe
-    "--windowed",             # Sin consola (GUI)
+    "--onefile",
+    "--windowed",
     "--clean",
-    "--add-data=core;core",
-    "--add-data=gui/tabs;gui/tabs",
-    "--add-data=gui/theme;gui/theme",
-    "--add-data=gui/widgets;gui/widgets",
-    "--add-data=firmware;firmware",
+    "--paths=.",
     "--hidden-import=serial",
     "--hidden-import=serial.tools.list_ports",
     "--hidden-import=serial.tools.list_ports_windows",
     "--hidden-import=usb.core",
     "--hidden-import=usb.util",
-    "--hidden-import=usb.legacy",
-    "--collect-all=serial",
-    "--collect-all=usb",
+    "gui/app_v2.py",
 ])
 
-print()
-print("=" * 60)
-print("Generacion completa!")
-print("Ejecutable en: dist/ArduCheck.exe")
-print("=" * 60)
+print("Listo! Ejecutable en dist/ArduCheck.exe")

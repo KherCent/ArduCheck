@@ -9,6 +9,11 @@ env/
 build/
 dist/
 *.egg-info/
+*.egg
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Arduino / C++
 *.hex
@@ -20,18 +25,61 @@ dist/
 *.la
 *.lo
 *.so
+*.dll
+*.exe
+*.app/
+*.dSYM/
+*.map
+*.eep
+*.lst
+*.lss
+*.sym
+*.core
+
+# arduino-cli build output
+.arduino/
+Arduino15/
+prefs.txt
+staging/
+[Ll]ibraries/
+[Tt]ools/
+[Hh]ardware/
+[Uu]sers/
+
+# Logs y resultados
+*.log
+logs/
+results/
+diagnostic_results/
+
+# Config local (nunca subir API keys ni credenciales)
+config_local.py
+.env
+.env.local
+*.local.yaml
 
 # IDEs
 .vscode/
+.vs/
 .idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.swp
-
-# OS
+*.swo
+*~
+.DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini
-.DS_Store
+
+# Test coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentacion generadas
+site/
+docs/_build/
+*.bak

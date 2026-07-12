@@ -8,6 +8,7 @@ Lee la firma (signature) y, si es posible, los fuses vía avrdude/arduino-cli.
 from __future__ import annotations
 import subprocess
 import shutil
+import os
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -112,40 +113,87 @@ def _find_tool(name: str) -> Optional[str]:
     return shutil.which(name)
 
 
-def read_signature_via_avrdude(port: str, baud: int = 115200) -> BoardInfo:
+def _find_avrdude() -> Optional[str]:
+    """Busca avrdude en PATH o en ubicaciones de arduino-cli."""
+    avrdude = _find_tool("avrdude")
+    if avrdude:
+        return avrdude
+    # Buscar en Arduino CLI
+    cli_base = os.environ.get("PROGRAMFILES", "C:\\Program Files")
+    cli_path = os.path.join(cli_base, "Arduino CLI")
+    candidates = [
+        os.path.join(cli_path, "hardware", "tools", "avr", "bin", "avrdude.exe"),
+        os.path.join(cli_path, "packages", "arduino", "tools", "avrdude", "8.0.0-arduino1", "bin", "avrdude.exe"),
+        os.path.join(cli_path, "arduino-data", "packages", "arduino", "tools", "avrdude", "8.0.0-arduino1", "bin", "avrdude.exe"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    # Buscar en AppData
+    local = os.environ.get("LOCALAPPDATA", "")
+    if local:
+        avrdude_local = os.path.join(local, "Arduino15", "packages", "arduino", "tools", "avrdude", "8.0.0-arduino1", "bin", "avrdude.exe")
+        if os.path.exists(avrdude_local):
+            return avrdude_local
+    return None
+
+
+def _avrdude_conf() -> Optional[str]:
+    """Encuentra avrdude.conf."""
+    cli_base = os.environ.get("PROGRAMFILES", "C:\\Program Files")
+    cli_path = os.path.join(cli_base, "Arduino CLI")
+    candidates = [
+        os.path.join(cli_path, "hardware", "tools", "avr", "etc", "avrdude.conf"),
+        os.path.join(cli_path, "packages", "arduino", "tools", "avrdude", "8.0.0-arduino1", "etc", "avrdude.conf"),
+        os.path.join(os.environ.get("LOCALAPPDATA", ""), "Arduino15", "packages", "arduino", "tools", "avrdude", "8.0.0-arduino1", "etc", "avrdude.conf"),
+    ]
+    for c in candidates:
+        if os.path.exists(c):
+            return c
+    return None
+
+
+def read_signature_via_avrdude(port: str, baud: int = 115200, mcu: str = "m328p") -> BoardInfo:
     """Lee la firma del chip usando avrdude directamente."""
     info = BoardInfo()
     info.read_via = "avrdude"
-    avrdude = _find_tool("avrdude")
+    avrdude = _find_avrdude()
     if not avrdude:
         raise FileNotFoundError("avrdude no esta instalado o no esta en PATH")
-    cmd = [
-        avrdude,
-        "-c", "arduino",
-        "-p", "m328p",        # asumimos Uno por defecto; el caller puede ajustar
-        "-P", port,
-        "-b", str(baud),
-        "-U", "signature:r:-:h",
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
-    # Parseamos la firma hexadecimal del stdout
-    sig_bytes: List[int] = []
-    for line in proc.stdout.splitlines():
-        line = line.strip()
-        if all(c in "0123456789abcdefABCDEF" for c in line) and len(line) == 6:
-            try:
-                sig_bytes = [int(line[i:i+2], 16) for i in (0, 2, 4)]
-                break
-            except ValueError:
-                continue
-    if len(sig_bytes) == 3:
-        info.signature = tuple(sig_bytes)
-        if tuple(sig_bytes) in KNOWN_SIGNATURES:
-            chip, board, fl, ram, eep = KNOWN_SIGNATURES[tuple(sig_bytes)]
-            info.chip, info.board_type = chip, board
-            info.flash_bytes, info.ram_bytes, info.eeprom_bytes = fl, ram, eep
-        else:
-            info.chip = f"Desconocido (sig 0x{''.join(f'{b:02X}' for b in sig_bytes)})"
+    conf = _avrdude_conf()
+    cmd = [avrdude]
+    if conf and os.path.exists(conf):
+        cmd.extend(["-C", conf])
+    cmd.extend(["-v", "-c", "arduino", "-p", mcu, "-P", port, "-b", str(baud), "-D", "-U", "signature:r:-:h"])
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+        output = proc.stdout + proc.stderr
+        # Parseamos la firma del output
+        sig_bytes: List[int] = []
+        for line in output.splitlines():
+            line = line.strip()
+            if all(c in "0123456789abcdefABCDEF" for c in line) and len(line) == 6:
+                try:
+                    sig_bytes = [int(line[i:i+2], 16) for i in (0, 2, 4)]
+                    break
+                except ValueError:
+                    continue
+        if len(sig_bytes) == 3:
+            info.signature = tuple(sig_bytes)
+            if tuple(sig_bytes) in KNOWN_SIGNATURES:
+                chip, board, fl, ram, eep = KNOWN_SIGNATURES[tuple(sig_bytes)]
+                info.chip, info.board_type = chip, board
+                info.flash_bytes, info.ram_bytes, info.eeprom_bytes = fl, ram, eep
+            else:
+                info.chip = f"Desconocido (sig 0x{''.join(f'{b:02X}' for b in sig_bytes)})"
+        # Verificar si hay error de sincronizacion
+        if "not in sync" in output.lower() or "resp=0x00" in output:
+            info.chip = "ERROR: Bootloader corrupto/ausente"
+            info.read_via = "avrdude: bootloader error"
+    except subprocess.TimeoutExpired:
+        info.read_via = "avrdude: timeout"
+    except Exception as e:
+        info.read_via = f"avrdude: {e}"
     return info
 
 

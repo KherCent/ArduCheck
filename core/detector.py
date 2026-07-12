@@ -74,10 +74,27 @@ class ArduinoDetector:
 
     @staticmethod
     def _parse_hwid(hwid: str):
-        """Extrae VID y PID del string hwid que entrega pyserial."""
+        """Extrae VID y PID del string hwid que entrega pyserial.
+
+        Maneja dos formatos comunes:
+        1) "VID=1234 PID=5678"  (estandar)
+        2) "USB VID:PID=1A86:7523" (formato usado por CH340/CH341 en Windows)
+        """
         vid = pid = None
         if not hwid:
             return vid, pid
+        hwid_upper = hwid.upper()
+        # Formato CH340: "USB VID:PID=1A86:7523"
+        if "VID:PID=" in hwid_upper:
+            try:
+                parts = hwid_upper.split("VID:PID=")[1].split()[0].split(":")
+                if len(parts) == 2:
+                    vid = int(parts[0], 16)
+                    pid = int(parts[1], 16)
+                    return vid, pid
+            except (ValueError, IndexError):
+                pass
+        # Formato estandar: "VID=1234 PID=5678"
         for token in hwid.split():
             token = token.upper()
             if token.startswith("VID="):

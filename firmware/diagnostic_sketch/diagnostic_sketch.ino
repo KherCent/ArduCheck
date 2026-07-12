@@ -64,7 +64,7 @@
 unsigned long t_start;
 
 // ---------- HELPERS ----------
-void emit(const __FlashStringHelper* tag, long v1 = -99999, long v2 = -99999) {
+void emit(const __FlashStringHelper* tag, long v1 = -99999, long v2 = -99999, long v3 = -99999) {
   Serial.print(tag);
   if (v1 != -99999) {
     Serial.print(',');
@@ -73,6 +73,10 @@ void emit(const __FlashStringHelper* tag, long v1 = -99999, long v2 = -99999) {
   if (v2 != -99999) {
     Serial.print(',');
     Serial.print(v2);
+  }
+  if (v3 != -99999) {
+    Serial.print(',');
+    Serial.print(v3);
   }
   Serial.println();
   Serial.flush();

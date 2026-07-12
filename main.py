@@ -79,6 +79,24 @@ def cmd_diagnose(args):
             sys.exit(1)
         port = board.port
         print(f"Usando puerto autodetectado: {port} ({board.guessed_name})")
+    
+    if getattr(args, "upload", False):
+        from core import upload_sketch
+        print(f"Subiendo sketch de diagnóstico a {port}...")
+        # Determinar el tipo de placa por la autodetección si es posible
+        board_type = "uno"
+        boards = ArduinoDetector.scan()
+        for b in boards:
+            if b.port == port:
+                board_type = b.guessed_type or "uno"
+                break
+        ok, msg = upload_sketch(port, board_type)
+        if not ok:
+            print(f"[FAIL] Error al subir el sketch: {msg}")
+            sys.exit(3)
+        print("[OK] Sketch cargado exitosamente.")
+        print("Iniciando lectura de diagnóstico...")
+
     diag = ArduinoDiagnostic(port=port, baud=args.baud, timeout=args.timeout)
     result = diag.run_full_diagnostic()
     print()
@@ -184,6 +202,7 @@ def main():
     p_diag.add_argument("--port", help="Puerto (p.ej. COM3, /dev/ttyUSB0)")
     p_diag.add_argument("--baud", type=int, default=115200)
     p_diag.add_argument("--timeout", type=float, default=60.0)
+    p_diag.add_argument("--upload", action="store_true", help="Subir el sketch de diagnostico antes de iniciar el test")
 
     p_repair = sub.add_parser("repair", help="Reparar bootloader de una placa")
     p_repair.add_argument("--port", help="Puerto (p.ej. COM3, /dev/ttyUSB0)")

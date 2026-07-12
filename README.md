@@ -3,6 +3,10 @@
 **Universal diagnostic tool for Arduino and compatible boards.**  
 Detects, identifies, and verifies the functional status of boards across all families.
 
+[![Download ArduCheck](https://img.shields.io/badge/Download-ArduCheck.exe-brightgreen?style=for-the-badge)](https://github.com/KherCent/ArduCheck/releases/latest/download/ArduCheck.exe)
+[![Release](https://img.shields.io/github/v/release/KherCent/ArduCheck?style=flat)](https://github.com/KherCent/ArduCheck/releases)
+[![Stars](https://img.shields.io/github/stars/KherCent/ArduCheck?style=flat)](https://github.com/KherCent/ArduCheck/stargazers)
+
 **Español** | [English Version](README.md) *(You are here)* | [Leer en Español](README.es.md)
 
 ---

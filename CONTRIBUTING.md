@@ -1,64 +1,66 @@
-# 🤝 Guía de Contribución - Arduino Diagnostic Suite
+# 🤝 Contributing Guidelines - ArduCheck
 
-¡Gracias por tu interés en contribuir a **Arduino Diagnostic Suite**! Este proyecto es de código abierto y está mantenido por **KherCent**. Tu ayuda es fundamental para mejorar el diagnóstico de hardware en todo el ecosistema de Arduino.
+Thank you for your interest in contributing to **ArduCheck**! This project is open-source and is maintained by **KherCent**. Your support is essential to improve hardware diagnostics across the entire Arduino ecosystem.
 
-Al participar en este proyecto, te comprometes a seguir nuestro [Código de Conducta](CODE_OF_CONDUCT.md).
+By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
----
-
-## 🗂️ ¿Cómo puedo contribuir?
-
-### 1. Reportar Errores (Bugs)
-Si encuentras un error o un comportamiento inesperado:
-1. Revisa la lista de [Issues del proyecto](https://github.com/KherCent/arduino-diagnostic/issues) para asegurarte de que no haya sido reportado previamente.
-2. Si es nuevo, abre un Issue usando nuestra plantilla de **Bug Report**.
-3. Asegúrate de incluir:
-   - Sistema operativo (Windows, Linux, macOS).
-   - Placa de Arduino exacta y si es original o clon (ej. CH340).
-   - Log completo del terminal o captura de la GUI.
-   - Pasos detallados para reproducir el error.
-
-### 2. Proponer Nuevas Funciones o Arquitecturas
-Queremos diagnosticar tantas placas como sea posible. Si deseas proponer soporte para una nueva placa, chip o arquitectura:
-1. Abre un Issue usando la plantilla **Feature Request**.
-2. Explica qué placas se beneficiarían y, si es posible, proporciona los IDs de USB (`VID:PID`) y la firma del chip.
-
-### 3. Contribuir con Código (Pull Requests)
-¡Nos encantan las Pull Requests (PR)! Para contribuir con código, sigue este flujo de trabajo:
-
-1. **Haz un Fork** del repositorio a tu propia cuenta.
-2. **Clona** tu fork localmente:
-   ```bash
-   git clone https://github.com/TU-USUARIO/arduino-diagnostic.git
-   cd arduino-diagnostic
-   ```
-3. **Crea una rama (branch)** descriptiva para tus cambios:
-   ```bash
-   git checkout -b feature/mi-nueva-funcion
-   # o para correcciones
-   git checkout -b fix/correccion-de-bug
-   ```
-4. **Realiza tus cambios** y asegúrate de seguir las pautas de estilo.
-5. **Prueba tus cambios**:
-   - Ejecuta los tests automáticos: `python -m unittest tests/test_smoke.py`
-   - Si modificaste el firmware, asegúrate de que compila correctamente usando `arduino-cli`.
-6. **Haz commit** de tus cambios de forma limpia y clara.
-7. **Sube tus cambios** a tu fork y abre una **Pull Request** hacia la rama `main` del repositorio oficial.
+**English** | [Leer en Español](CONTRIBUTING.es.md)
 
 ---
 
-## 🎨 Pautas de Estilo y Código
+## 🗂️ How Can I Contribute?
+
+### 1. Reporting Bugs
+If you find a bug or unexpected behavior:
+1. Search the [Project Issues](https://github.com/KherCent/ArduCheck/issues) to make sure it hasn't been reported yet.
+2. If it is new, open a new Issue using our **Bug Report** template.
+3. Be sure to include:
+   - Operating system (Windows, Linux, macOS).
+   - Exact Arduino board model and whether it is original or a clone (e.g., CH340).
+   - Full terminal log or GUI screenshot.
+   - Detailed steps to reproduce the error.
+
+### 2. Proposing New Features or Architectures
+We want to diagnose as many boards as possible. If you want to propose support for a new board, chip, or architecture:
+1. Open a new Issue using the **Feature Request** template.
+2. Explain which boards would benefit and, if possible, provide the USB IDs (`VID:PID`) and the chip signature.
+
+### 3. Contributing Code (Pull Requests)
+We love Pull Requests (PRs)! To contribute code, follow this workflow:
+
+1. **Fork** the repository to your own account.
+2. **Clone** your fork locally:
+   ```bash
+   git clone https://github.com/YOUR-USERNAME/ArduCheck.git
+   cd ArduCheck
+   ```
+3. **Create a branch** for your changes:
+   ```bash
+   git checkout -b feature/my-new-feature
+   # or for bug fixes
+   git checkout -b fix/bug-fix
+   ```
+4. **Make your changes** and ensure they follow style guidelines.
+5. **Test your changes**:
+   - Run automated tests: `python -m unittest tests/test_smoke.py`
+   - If you modified the firmware, make sure it compiles correctly using `arduino-cli`.
+6. **Commit** your changes cleanly.
+7. **Push** your changes to your fork and open a **Pull Request** targeting the `main` branch of the official repository.
+
+---
+
+## 🎨 Code and Style Guidelines
 
 ### Python (Host CLI & GUI)
-- Seguimos la guía de estilo **PEP 8**.
-- Usa comentarios en el código cuando la lógica sea compleja.
-- Mantén la compatibilidad multiplataforma (evita llamadas directas al sistema operativo que no sean portables).
+- We follow the **PEP 8** style guide.
+- Comment code where logic is complex.
+- Maintain cross-platform compatibility (avoid OS-specific calls that aren't portable).
 
-### Firmware C/C++ (Sketches en `firmware/`)
-- El código del firmware debe ser lo más ligero y eficiente posible.
-- Evita el uso de librerías externas que no puedan instalarse fácilmente desde el gestor oficial de librerías de Arduino.
-- Estructura las pruebas de forma modular para que la salida por el puerto Serial sea consistente y fácil de parsear por `core/parser.py`.
+### Firmware C/C++ (Sketches in `firmware/`)
+- Firmware code should be as lightweight and efficient as possible.
+- Avoid using external libraries that cannot be easily installed from the official Arduino Library Manager.
+- Structure test outputs consistently so they can be easily parsed by `core/parser.py`.
 
 ---
 
-¿Tienes alguna pregunta? No dudes en abrir un hilo de discusión o contactar al mantenedor del proyecto, **KherCent**. ¡Feliz código!
+Have any questions? Feel free to start a discussion or contact the maintainer, **KherCent**. Happy coding!

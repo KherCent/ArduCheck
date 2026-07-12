@@ -5,6 +5,13 @@ Todos los cambios notables de este proyecto serán documentados en este archivo.
 El formato esta basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 Este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [2.0.0] - 2026-07-11
+
+### Agregado
+- **Módulo de reparación automático** (`core/repair.py`): Quema bootloader, configura fuses, verifica reparación
+- **Comando CLI `repair`**: `python main.py repair --port COM9`
+- **Tests del módulo de reparación** (`tests/test_repair.py`): 7 tests unitarios
+
 ## [1.0.0] - 2026-07-11
 
 ### Agregado

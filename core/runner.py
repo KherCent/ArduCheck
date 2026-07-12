@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 
 from .parser import DiagnosticParser, DiagnosticReport
+from .board_info import _find_avrdude, _avrdude_conf, KNOWN_SIGNATURES
 
 
 # Umbrales
@@ -61,6 +62,47 @@ class ArduinoDiagnostic:
 
     def run_full_diagnostic(self) -> DiagnosticResult:
         """Abre el puerto, lee la salida del sketch y devuelve el veredicto."""
+        self._bootloader_check_done = False
+        self._bootloader_error = ""
+        
+        # 0) Verificar bootloader ANTES de tests por Serial
+        avrdude = _find_avrdude()
+        if avrdude:
+            conf = _avrdude_conf()
+            import subprocess
+            for mcu in ["m328p", "m2560"]:
+                cmd = [avrdude]
+                if conf:
+                    cmd.extend(["-C", conf])
+                cmd.extend(["-v", "-c", "arduino", "-p", mcu, "-P", self.port, "-b", str(self.baud), "-D"])
+                try:
+                    r = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+                    output = r.stdout + r.stderr
+                    if "signature" in output.lower() and "0x1e" in output:
+                        # Extraer firma
+                        for line in output.split('\n'):
+                            line = line.strip()
+                            if len(line) == 6 and all(c in "0123456789abcdefABCDEF" for c in line):
+                                try:
+                                    sig = tuple(int(line[i:i+2], 16) for i in (0, 2, 4))
+                                    if sig in KNOWN_SIGNATURES:
+                                        chip, arch, fl, ram, eep = KNOWN_SIGNATURES[sig]
+                                        self.parser.report.chip = chip
+                                        break
+                                except:
+                                    pass
+                        self._bootloader_check_done = True
+                        break
+                    elif "not in sync" in output.lower() or "resp=0x00" in output:
+                        self._bootloader_error = f"Bootloader corrupto/ausente (MCU {mcu})"
+                        self._bootloader_check_done = True
+                        break
+                except subprocess.TimeoutExpired:
+                    self._bootloader_error = "Timeout en verificacion bootloader"
+                    break
+                except Exception:
+                    break
+        
         try:
             with serial.Serial(self.port, self.baud, timeout=2) as ser:
                 # Reset por DTR (algunos clones CH340 lo ignoran)
@@ -109,6 +151,14 @@ class ArduinoDiagnostic:
             summary="",
             report=r,
         )
+
+        # 0) Veredicto de bootloader (si se detecto error)
+        if getattr(self, '_bootloader_check_done', False) and getattr(self, '_bootloader_error', ''):
+            result.errors.append(self._bootloader_error)
+            result.verdict = "FAIL"
+            result.score = 0
+            result.summary = f"[FAIL] FAIL - ? (?) score=0/100"
+            return result
 
         # 1) Voltaje
         if r.vcc_mv:

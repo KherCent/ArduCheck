@@ -34,6 +34,41 @@ def cmd_scan(args):
     print(f"Total: {len(boards)} puerto(s) - {sum(1 for b in boards if b.is_arduino_like)} compatible(s) Arduino")
 
 
+def cmd_repair(args):
+    from core import repair_port
+    print("=" * 70)
+    print(" REPARACION DE ARDUINO")
+    print("=" * 70)
+    print()
+    port = args.port
+    if not port:
+        board = ArduinoDetector.find_first(only_arduino=False)
+        if not board:
+            print("No hay puertos seriales disponibles. Conecta un Arduino.")
+            sys.exit(1)
+        port = board.port
+        print(f"Usando puerto autodetectado: {port}")
+    print(f"Puerto: {port}")
+    print()
+    print("Iniciando reparacion automatica...")
+    result = repair_port(port, baud=args.baud)
+    print()
+    if result.steps:
+        print("[PASOS]:")
+        for s in result.steps:
+            print(f"   > {s}")
+    print()
+    if result.success:
+        print(f"[OK] {result.message}")
+        print(f"Score: {result.score_after}/100")
+    else:
+        print(f"[FAIL] {result.message}")
+        if result.errors:
+            for e in result.errors:
+                print(f"   Error: {e}")
+    sys.exit(0 if result.success else 1)
+
+
 def cmd_diagnose(args):
     port = args.port
     if not port:
@@ -150,6 +185,10 @@ def main():
     p_diag.add_argument("--baud", type=int, default=115200)
     p_diag.add_argument("--timeout", type=float, default=60.0)
 
+    p_repair = sub.add_parser("repair", help="Reparar bootloader de una placa")
+    p_repair.add_argument("--port", help="Puerto (p.ej. COM3, /dev/ttyUSB0)")
+    p_repair.add_argument("--baud", type=int, default=115200)
+
     p_gui = sub.add_parser("gui", help="Abrir interfaz grafica")
     sub.add_parser("install", help="Mostrar instrucciones de instalacion")
     sub.add_parser("watch", help="Monitor de conexion en caliente (Ctrl+C para salir)")
@@ -159,6 +198,8 @@ def main():
         cmd_scan(args)
     elif args.cmd == "diagnose":
         cmd_diagnose(args)
+    elif args.cmd == "repair":
+        cmd_repair(args)
     elif args.cmd == "gui":
         cmd_gui(args)
     elif args.cmd == "install":

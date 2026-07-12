@@ -1,37 +1,39 @@
-# Código de Conducta del Contribuyente
+# Contributor Covenant Code of Conduct
 
-## Nuestro Compromiso
+**English** | [Leer en Español](CODE_OF_CONDUCT.es.md)
 
-Nosotros, como miembros, colaboradores y administradores de este proyecto, nos comprometemos a hacer de la participación en él una experiencia libre de acoso para todos, independientemente de la edad, dimensión corporal, discapacidad, etnia, identidad y expresión de género, nivel de experiencia, nacionalidad, apariencia física, raza, religión, identidad u orientación sexual.
+## Our Pledge
 
-## Nuestros Estándares
+In the interest of fostering an open and welcoming environment, we as contributors and maintainers pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
-Ejemplos de comportamiento que contribuyen a crear un ambiente positivo:
+## Our Standards
 
-* El uso de lenguaje acogedor e inclusivo.
-* El respeto a los diferentes puntos de vista y experiencias.
-* Aceptar respetuosamente las críticas constructivas.
-* Enfocarse en lo que es mejor para la comunidad.
-* Mostrar empatía hacia otros miembros de la comunidad.
+Examples of behavior that contributes to creating a positive environment include:
 
-Ejemplos de comportamiento inaceptable por parte de los participantes:
+* Using welcoming and inclusive language
+* Being respectful of differing viewpoints and experiences
+* Gracefully accepting constructive criticism
+* Focusing on what is best for the community
+* Showing empathy towards other community members
 
-* El uso de lenguaje o imágenes sexuales, así como atención sexual no deseada de cualquier tipo.
-* Comentarios despectivos, ataques personales o discusiones políticas/personales.
-* El acoso público o privado.
-* La publicación de información privada de otros sin su consentimiento explícito (doxxing).
-* Otras conductas que puedan considerarse razonablemente inapropiadas en un entorno profesional.
+Examples of unacceptable behavior by participants include:
 
-## Nuestras Responsabilidades
+* The use of sexualized language or imagery and unwelcome sexual attention or advances
+* Trolling, insulting/derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or electronic address, without explicit permission
+* Other conduct which could reasonably be considered inappropriate in a professional setting
 
-Los mantenedores del proyecto, liderados por **KherCent**, son responsables de aclarar los estándares de comportamiento aceptable y se espera que tomen medidas correctivas apropiadas y justas ante cualquier comportamiento inaceptable.
+## Our Responsibilities
 
-Los mantenedores tienen el derecho y la responsabilidad de eliminar, editar o rechazar comentarios, commits, código, ediciones de wiki, issues y otras contribuciones que no estén alineadas con este Código de Conducta.
+Project maintainers, led by **KherCent**, are responsible for clarifying the standards of acceptable behavior and are expected to take appropriate and fair corrective action in response to any instances of unacceptable behavior.
 
-## Alcance
+Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, or to ban temporarily or permanently any contributor for other behaviors that they deem inappropriate, threatening, offensive, or harmful.
 
-Este Código de Conducta es aplicable tanto dentro de los espacios del proyecto como en espacios públicos donde un individuo represente al proyecto o a su comunidad.
+## Scope
 
-## Aplicación
+This Code of Conduct applies both within project spaces and in public spaces when an individual is representing the project or its community.
 
-Los casos de comportamiento abusivo, acosador o inaceptable de otro modo podrán ser reportados contactando al mantenedor del proyecto (**KherCent**). Todas las quejas serán examinadas e investigadas, dando lugar a una respuesta necesaria y apropiada según las circunstancias.
+## Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project maintainer (**KherCent**). All complaints will be reviewed and investigated and will result in a response that is deemed necessary and appropriate to the circumstances.

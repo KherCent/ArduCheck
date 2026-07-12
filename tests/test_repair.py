@@ -6,6 +6,7 @@ import unittest
 import sys
 from pathlib import Path
 
+# Permite imports absolutos desde el paquete 'core'
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.repair import (
@@ -27,12 +28,28 @@ class TestRepairModule(unittest.TestCase):
             steps=["step1", "step2"],
             score_before=0,
             score_after=50,
+            errors=["error1", "error2"],
         )
         self.assertFalse(result.success)
         self.assertEqual(result.message, "Test message")
         self.assertEqual(len(result.steps), 2)
         self.assertEqual(result.score_before, 0)
         self.assertEqual(result.score_after, 50)
+        self.assertEqual(len(result.errors), 2)
+        self.assertEqual(result.errors[0], "error1")
+
+    def test_repair_result_errors_default(self):
+        """Verifica que errors tenga valor por defecto vacío."""
+        result = RepairResult(
+            success=True,
+            message="OK",
+            steps=[],
+            score_before=100,
+            score_after=100,
+        )
+        self.assertIsNotNone(result.errors)
+        self.assertIsInstance(result.errors, list)
+        self.assertEqual(len(result.errors), 0)
 
     def test_default_fuses_328p(self):
         """Verifica los fuses por defecto para ATmega328P."""

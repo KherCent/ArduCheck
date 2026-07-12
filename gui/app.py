@@ -5,6 +5,7 @@ Multiplataforma: maneja desconexiones abruptas y permisos de puerto serie.
 """
 
 from __future__ import annotations
+from typing import TYPE_CHECKING, Optional
 import threading
 import queue
 import time
@@ -13,6 +14,7 @@ from tkinter import ttk, messagebox, scrolledtext
 import sys
 from pathlib import Path
 
+# Permite imports absolutos desde el paquete 'core'
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core import (
@@ -32,7 +34,7 @@ class DiagnosticGUI:
 
         self.event_queue: "queue.Queue" = queue.Queue()
         self.boards_cache = []
-        self._verdict_label: ttk.Label = None
+        self._verdict_label: Optional[ttk.Label] = None
 
         self._build_ui()
         self.root.after(200, self._poll_queue)

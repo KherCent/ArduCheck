@@ -114,29 +114,47 @@ run_gui.bat
 ```
 arduino-diagnostic/
 ├── firmware/               # Sketches de auto-test por arquitectura
-│   ├── avr/                # ATmega328P/2560 (Uno, Mega, Nano, Leonardo)
-│   ├── samd/              # ATSAMD21 (Zero, MKR, Nano 33 IoT)
-│   ├── rp2040/            # RP2040 (Pico, Nano RP2040 Connect)
-│   ├── esp32/             # ESP32 (todas las variantes)
-│   └── esp8266/           # ESP8266 (NodeMCU, Wemos D1 Mini)
-├── core/                  # Lógica Python
-│   ├── detector.py         # Escaneo de puertos + identificación VID/PID
-│   ├── board_info.py      # Firmas AVR/SAMD/nRF52 (60+ chips)
-│   ├── usb_ident.py        # Base de datos de 100+ VID/PID
-│   ├── board_heuristic.py  # Identificación por descripción USB
-│   ├── parser.py           # Parseo de resultados del sketch
-│   ├── runner.py           # Coordinador del diagnóstico
-│   ├── flasher.py          # Upload vía arduino-cli
-│   └── watcher.py          # Monitor hot-plug USB
-├── gui/
-│   └── app.py              # GUI Tkinter con auto-refresh
-├── tests/
-│   └── test_smoke.py       # Tests automatizados
+│   ├── diagnostic_sketch/  # ATmega328P/2560 (Uno, Mega, Nano, Leonardo)
+│   ├── samd/               # ATSAMD21 (Zero, MKR, Nano 33 IoT)
+│   ├── rp2040/             # RP2040 (Pico, Nano RP2040 Connect)
+│   ├── esp32/              # ESP32 (todas las variantes)
+│   ├── esp8266/            # ESP8266 (NodeMCU, Wemos D1 Mini)
+│   ├── nrf52/              # nRF52840 (Nano 33 BLE)
+│   └── stm32/              # STM32 (Portenta, BluePill)
+├── core/                   # Lógica Python
+│   ├── __init__.py          # Exports públicos del paquete
+│   ├── detector.py          # Escaneo de puertos + identificación VID/PID
+│   ├── board_info.py        # Firmas AVR/SAMD/nRF52 (60+ chips)
+│   ├── usb_ident.py         # Base de datos de 100+ VID/PID
+│   ├── board_heuristic.py   # Identificación por descripción USB
+│   ├── parser.py            # Parseo de resultados del sketch
+│   ├── runner.py            # Coordinador del diagnóstico
+│   ├── flasher.py           # Upload vía arduino-cli
+│   ├── repair.py            # Reparación automática de bootloader
+│   ├── bootloader_check.py  # Verificación de bootloader
+│   ├── exporter.py          # Exportación de reportes
+│   ├── platform_utils.py    # Utilidades multiplataforma
+│   └── watcher.py           # Monitor hot-plug USB
+├── gui/                    # Interfaz gráfica
+│   ├── app.py               # GUI principal (v1)
+│   ├── app_v2.py            # GUI mejorada (v2)
+│   ├── tabs/                # Pestañas de la GUI
+│   │   ├── tab_diagnostico.py
+│   │   └── tab_reparar.py
+│   ├── theme/               # Temas visuales
+│   └── widgets/             # Widgets personalizados
+├── tests/                  # Tests automatizados
+│   ├── test_smoke.py        # Tests de humo generales
+│   ├── test_repair.py       # Tests del módulo repair
+│   └── test_watcher.py      # Tests del watcher
 ├── docs/
 ├── main.py                 # CLI + menú interactivo
-├── run.bat                 # Launcher consola
-├── run_gui.bat             # Launcher GUI
+├── run.bat                 # Launcher consola (Windows)
+├── run.sh                  # Launcher consola (Linux/macOS)
+├── run_gui.bat             # Launcher GUI (Windows)
+├── run_gui.sh              # Launcher GUI (Linux/macOS)
 ├── requirements.txt
+├── pyproject.toml          # Configuración del paquete Python
 └── README.md
 ```
 
@@ -215,9 +233,10 @@ arduino-diagnostic/
 - [x] Base de datos VID/PID universal (100+ entradas)
 - [x] Firmas AVR/SAMD/nRF52 expandidas (60+ chips)
 - [x] Heurística por descripción USB
-- [x] Sketches por arquitectura (AVR, SAMD, RP2040, ESP32, ESP8266)
+- [x] Sketches por arquitectura (AVR, SAMD, RP2040, ESP32, ESP8266, nRF52, STM32)
 - [x] Detector mejorado con arquitectura detectada
+- [x] Módulo de reparación automática de bootloader (`repair.py`)
 - [ ] Flasher mejorado (bossac, esptool, picotool por arquitectura)
-- [ ] Tests de smoke para nuevas bases de datos
-- [ ] Soporte para nRF52 (Nano 33 BLE) - sketch de diagnóstico
-- [ ] Soporte para STM32 (Portenta) - sketch de diagnóstico
+- [ ] Tests de smoke extendidos para bases de datos VID/PID y firmas
+- [x] Soporte para nRF52 (Nano 33 BLE) - sketch de diagnóstico
+- [x] Soporte para STM32 (Portenta) - sketch de diagnóstico

@@ -38,6 +38,11 @@ class RepairResult:
     steps: List[str]
     score_before: int
     score_after: int
+    errors: List[str] = None  # type: ignore[assignment]
+
+    def __post_init__(self):
+        if self.errors is None:
+            self.errors = []
 
 
 class ArduinoRepair:

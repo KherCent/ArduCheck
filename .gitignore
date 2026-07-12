@@ -88,3 +88,22 @@ htmlcov/
 site/
 docs/_build/
 *.bak
+
+# Dev tools & CI
+.ruff_cache/
+.pytest_cache/
+.pytype/
+.ruff_cache/
+
+# Pre-commit secrets baseline
+.secrets.baseline
+
+# frozen lockfiles (if using pip-tools)
+requirements.lock
+constraints.txt
+
+# OS-specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini

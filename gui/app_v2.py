@@ -8,6 +8,7 @@ from tkinter import ttk
 import sys
 from pathlib import Path
 
+# Permite imports absolutos desde el paquete 'core'
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core import ArduinoDetector, get_default_watcher

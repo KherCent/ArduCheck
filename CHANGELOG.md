@@ -42,9 +42,9 @@ Este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 - **README actualizado**: Tabla completa de 20+ familias soportadas.
 
 ### Cambiado
-- `detector.py` ahora usa `usb_ident.py` y `board_heuristic.py` para deteccion universal.
-- `board_info.py` расширен с 9 a 60+ firmas AVR/SAMD/nRF52.
-- `core/__init__.py` экспортирует все новые модули и константы архитектуры.
+- `detector.py` ahora usa `usb_ident.py` y `board_heuristic.py` para detección universal.
+- `board_info.py` expandido de 9 a 60+ firmas AVR/SAMD/nRF52.
+- `core/__init__.py` exporta todos los nuevos módulos y constantes de arquitectura.
 
 ### Fijo
 - Codigo duplicado al final de `board_info.py`.

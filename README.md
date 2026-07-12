@@ -118,29 +118,47 @@ run_gui.bat
 ```
 arduino-diagnostic/
 ├── firmware/               # Self-test sketches by architecture
-│   ├── avr/                # ATmega328P/2560 (Uno, Mega, Nano, Leonardo)
-│   ├── samd/              # ATSAMD21 (Zero, MKR, Nano 33 IoT)
-│   ├── rp2040/            # RP2040 (Pico, Nano RP2040 Connect)
-│   ├── esp32/             # ESP32 (all variants)
-│   └── esp8266/           # ESP8266 (NodeMCU, Wemos D1 Mini)
-├── core/                  # Python Logic
-│   ├── detector.py         # Port scan + VID/PID identification
-│   ├── board_info.py      # AVR/SAMD/nRF52 signatures (60+ chips)
-│   ├── usb_ident.py        # 100+ VID/PID database
-│   ├── board_heuristic.py  # USB description identification
-│   ├── parser.py           # Sketch results parser
-│   ├── runner.py           # Diagnostic coordinator
-│   ├── flasher.py          # Upload via arduino-cli
-│   └── watcher.py          # USB hot-plug monitor
-├── gui/
-│   └── app.py              # Tkinter GUI with auto-refresh
-├── tests/
-│   └── test_smoke.py       # Automated tests
+│   ├── diagnostic_sketch/  # ATmega328P/2560 (Uno, Mega, Nano, Leonardo)
+│   ├── samd/               # ATSAMD21 (Zero, MKR, Nano 33 IoT)
+│   ├── rp2040/             # RP2040 (Pico, Nano RP2040 Connect)
+│   ├── esp32/              # ESP32 (all variants)
+│   ├── esp8266/            # ESP8266 (NodeMCU, Wemos D1 Mini)
+│   ├── nrf52/              # nRF52840 (Nano 33 BLE)
+│   └── stm32/              # STM32 (Portenta, BluePill)
+├── core/                   # Python Logic
+│   ├── __init__.py          # Public package exports
+│   ├── detector.py          # Port scan + VID/PID identification
+│   ├── board_info.py        # AVR/SAMD/nRF52 signatures (60+ chips)
+│   ├── usb_ident.py         # 100+ VID/PID database
+│   ├── board_heuristic.py   # USB description identification
+│   ├── parser.py            # Sketch results parser
+│   ├── runner.py            # Diagnostic coordinator
+│   ├── flasher.py           # Upload via arduino-cli
+│   ├── repair.py            # Automatic bootloader repair
+│   ├── bootloader_check.py  # Bootloader verification
+│   ├── exporter.py          # Report export
+│   ├── platform_utils.py    # Cross-platform utilities
+│   └── watcher.py           # USB hot-plug monitor
+├── gui/                    # Graphical User Interface
+│   ├── app.py               # Main GUI (v1)
+│   ├── app_v2.py            # Enhanced GUI (v2)
+│   ├── tabs/                # GUI tabs
+│   │   ├── tab_diagnostico.py
+│   │   └── tab_reparar.py
+│   ├── theme/               # Visual themes
+│   └── widgets/             # Custom widgets
+├── tests/                  # Automated tests
+│   ├── test_smoke.py        # General smoke tests
+│   ├── test_repair.py       # Repair module tests
+│   └── test_watcher.py      # Watcher tests
 ├── docs/
 ├── main.py                 # CLI + interactive menu
-├── run.bat                 # Console launcher
-├── run_gui.bat             # GUI launcher
+├── run.bat                 # Console launcher (Windows)
+├── run.sh                  # Console launcher (Linux/macOS)
+├── run_gui.bat             # GUI launcher (Windows)
+├── run_gui.sh              # GUI launcher (Linux/macOS)
 ├── requirements.txt
+├── pyproject.toml          # Python package configuration
 └── README.md
 ```
 
@@ -219,9 +237,10 @@ arduino-diagnostic/
 - [x] Universal VID/PID database (100+ entries)
 - [x] Expanded AVR/SAMD/nRF52 signatures (60+ chips)
 - [x] USB description heuristics
-- [x] Sketches per architecture (AVR, SAMD, RP2040, ESP32, ESP8266)
+- [x] Sketches per architecture (AVR, SAMD, RP2040, ESP32, ESP8266, nRF52, STM32)
 - [x] Improved detector with detected architecture
+- [x] Automatic bootloader repair module (`repair.py`)
 - [ ] Improved flasher (bossac, esptool, picotool by architecture)
-- [ ] Smoke tests for new databases
-- [ ] nRF52 support (Nano 33 BLE) - diagnostic sketch
-- [ ] STM32 support (Portenta) - diagnostic sketch
+- [ ] Extended smoke tests for VID/PID and signature databases
+- [x] nRF52 support (Nano 33 BLE) - diagnostic sketch
+- [x] STM32 support (Portenta) - diagnostic sketch
